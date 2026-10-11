@@ -1,0 +1,571 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Java String Reference</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+:root {
+  --bg:       #F0EFF7;
+  --surface:  #FFFFFF;
+  --surface-2:#E8E6F0;
+  --fg:       #1A1826;
+  --fg-muted: #5E5A72;
+  --accent:   #6D28D9;
+  --accent-lt:#EDE9FE;
+  --border:   #D4D0E3;
+  --code-bg:  #19172A;
+  --tag-java: #4C1D95;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:       #100E1C;
+    --surface:  #1A1830;
+    --surface-2:#23203A;
+    --fg:       #E8E4F8;
+    --fg-muted: #9490AD;
+    --accent:   #A78BFA;
+    --accent-lt:#2D1F5E;
+    --border:   #2E2A4A;
+    --code-bg:  #0C0A18;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:       #100E1C;
+  --surface:  #1A1830;
+  --surface-2:#23203A;
+  --fg:       #E8E4F8;
+  --fg-muted: #9490AD;
+  --accent:   #A78BFA;
+  --accent-lt:#2D1F5E;
+  --border:   #2E2A4A;
+  --code-bg:  #0C0A18;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding-inline: 20px;
+  padding-block: 32px;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+}
+.page { max-width: 820px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+
+/* Header */
+.eyebrow { font-size: .7rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+h1 { font-size: clamp(1.55rem, 4vw, 2rem); font-weight: 600; line-height: 1.2; margin: 0 0 8px; text-wrap: balance; }
+.hero-sub { color: var(--fg-muted); max-width: 54ch; font-size: .93rem; margin: 0; }
+
+/* Tabs */
+.tab-bar {
+  display: flex; gap: 4px;
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 4px;
+  overflow-x: auto;
+}
+.tab-btn {
+  flex: 1; min-width: max-content;
+  padding: 8px 16px;
+  border: none; background: transparent;
+  border-radius: 7px;
+  font-family: inherit; font-size: .84rem; font-weight: 500;
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--fg); }
+.tab-btn.active {
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+
+/* Tab panels */
+.tab-panel { display: none; flex-direction: column; gap: 16px; }
+.tab-panel.active { display: flex; }
+
+/* Section heading */
+h2 { font-size: .68rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--fg-muted); margin: 4px 0 12px; }
+
+/* Method card */
+.method {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.method-head {
+  background: var(--code-bg);
+  padding: 11px 16px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.method-sig {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .8rem;
+  color: #A78BFA;
+  font-weight: 500;
+  flex: 1; min-width: 0;
+}
+.ret-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .68rem; font-weight: 500;
+  padding: 2px 8px; border-radius: 12px;
+  background: var(--accent-lt); color: var(--accent);
+  white-space: nowrap;
+}
+.method-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.method-desc { font-size: .87rem; color: var(--fg); line-height: 1.5; margin: 0; }
+.method-tip  { font-size: .82rem; color: var(--fg-muted); line-height: 1.45; font-style: italic; margin: 0; }
+
+/* Code block */
+.cb {
+  background: var(--code-bg);
+  border-radius: 7px;
+  padding: 12px 14px;
+  overflow-x: auto;
+}
+.cb code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .77rem; line-height: 1.85;
+  color: #CDD6F4;
+  white-space: pre;
+  display: block;
+}
+/* Output line */
+.out { color: #86EFAC; }
+
+/* Syntax colours (on dark bg) */
+.kw  { color: #C084FC; }   /* keyword: int, String, for, etc */
+.tp  { color: #67E8F9; }   /* type: String, char[], int */
+.fn  { color: #60A5FA; }   /* method name */
+.st  { color: #86EFAC; }   /* string literal */
+.ch  { color: #FDE68A; }   /* char literal */
+.nm  { color: #FB923C; }   /* number */
+.cm  { color: #4A5570; font-style: italic; }  /* comment */
+.op  { color: #94A3B8; }   /* operator */
+.cls { color: #F472B6; }   /* class name */
+
+/* Format specifier table */
+.spec-table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+.spec-table th {
+  text-align: left; padding: 8px 12px;
+  background: var(--surface-2);
+  font-weight: 600; font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-muted);
+}
+.spec-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.spec-table tr:last-child td { border-bottom: none; }
+.spec-table tr:hover td { background: var(--surface-2); }
+.spec { font-family: 'IBM Plex Mono', monospace; color: var(--accent); font-weight: 500; font-size: .8rem; }
+.spec-desc { color: var(--fg); }
+.spec-ex   { font-family: 'IBM Plex Mono', monospace; color: var(--fg-muted); font-size: .76rem; }
+
+/* Alert / note */
+.note {
+  background: var(--accent-lt);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 7px 7px 0;
+  padding: 10px 14px;
+  font-size: .84rem; color: var(--fg);
+}
+.note strong { color: var(--accent); }
+
+/* Inline code */
+ic {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .82rem;
+  background: var(--surface-2);
+  padding: 1px 6px; border-radius: 4px;
+  color: var(--accent);
+}
+
+/* Two-col split */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 540px) { .split { grid-template-columns: 1fr; } }
+.split-col { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.split-head { padding: 9px 14px; background: var(--surface-2); font-weight: 600; font-size: .83rem; border-bottom: 1px solid var(--border); }
+.split-body { padding: 12px 14px; }
+</style>
+
+<div class="page">
+
+  <!-- Hero -->
+  <header>
+    <div class="eyebrow">Java · CS Fundamentals</div>
+    <h1>String Methods &amp; Formatting</h1>
+    <p class="hero-sub">A quick reference for built-in String methods, type conversion, and formatted output in Java.</p>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tab-bar" role="tablist">
+    <button class="tab-btn active" data-tab="functions"  role="tab">String Functions</button>
+    <button class="tab-btn"        data-tab="typecast"   role="tab">Typecasting</button>
+    <button class="tab-btn"        data-tab="formatted"  role="tab">Formatted Strings</button>
+  </div>
+
+  <!-- ══ TAB 1: STRING FUNCTIONS ══════════════════════════════════ -->
+  <div class="tab-panel active" id="tab-functions">
+    <h2>6 Essential String Methods</h2>
+
+    <!-- compareTo -->
+    <div class="method">
+      <div class="method-head">
+        <span class="method-sig">compareTo(String anotherString)</span>
+        <span class="ret-badge">returns int</span>
+      </div>
+      <div class="method-body">
+        <p class="method-desc">Compares two strings <strong>lexicographically</strong> (like dictionary order). Returns <ic>0</ic> if equal, a <strong>negative</strong> number if the calling string comes first, or a <strong>positive</strong> number if it comes after.</p>
+        <div class="cb"><code><span class="tp">String</span> a <span class="op">=</span> <span class="st">"apple"</span>;
+<span class="tp">String</span> b <span class="op">=</span> <span class="st">"banana"</span>;
+
+<span class="cls">System</span>.out.<span class="fn">println</span>(a.<span class="fn">compareTo</span>(b));   <span class="cm">// negative  (a < b)</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(b.<span class="fn">compareTo</span>(a));   <span class="cm">// positive  (b > a)</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(a.<span class="fn">compareTo</span>(a));   <span class="cm">// 0         (equal)</span>
+
+<span class="cm">// Useful for sorting strings alphabetically</span>
+<span class="kw">if</span> (a.<span class="fn">compareTo</span>(b) <span class="op">&lt;</span> <span class="nm">0</span>) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="st">"apple comes before banana"</span>);
+}</code></div>
+        <p class="method-tip">💡 Internally computes: (char value of first different character in a) − (char value of that character in b)</p>
+      </div>
+    </div>
+
+    <!-- indexOf -->
+    <div class="method">
+      <div class="method-head">
+        <span class="method-sig">indexOf(char ch)</span>
+        <span class="ret-badge">returns int</span>
+      </div>
+      <div class="method-body">
+        <p class="method-desc">Finds the <strong>first occurrence</strong> of a character (or substring) and returns its index. Returns <ic>-1</ic> if not found. Index starts at 0.</p>
+        <div class="cb"><code><span class="tp">String</span> s <span class="op">=</span> <span class="st">"programming"</span>;
+
+<span class="cls">System</span>.out.<span class="fn">println</span>(s.<span class="fn">indexOf</span>(<span class="ch">'g'</span>));        <span class="cm">// 3</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(s.<span class="fn">indexOf</span>(<span class="ch">'z'</span>));        <span class="cm">// -1  (not found)</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(s.<span class="fn">indexOf</span>(<span class="st">"gram"</span>));     <span class="cm">// 3   (works with substrings too)</span>
+
+<span class="cm">// p  r  o  g  r  a  m  m  i  n  g</span>
+<span class="cm">// 0  1  2  3  4  5  6  7  8  9  10</span></code></div>
+      </div>
+    </div>
+
+    <!-- lastIndexOf -->
+    <div class="method">
+      <div class="method-head">
+        <span class="method-sig">lastIndexOf(char ch)</span>
+        <span class="ret-badge">returns int</span>
+      </div>
+      <div class="method-body">
+        <p class="method-desc">Like <ic>indexOf()</ic> but finds the <strong>last occurrence</strong> by searching from the end of the string backwards. Returns <ic>-1</ic> if not found.</p>
+        <div class="cb"><code><span class="tp">String</span> s <span class="op">=</span> <span class="st">"programming"</span>;
+
+<span class="cls">System</span>.out.<span class="fn">println</span>(s.<span class="fn">indexOf</span>(<span class="ch">'g'</span>));         <span class="cm">// 3  ← first 'g'</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(s.<span class="fn">lastIndexOf</span>(<span class="ch">'g'</span>));     <span class="cm">// 10 ← last 'g'</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(s.<span class="fn">lastIndexOf</span>(<span class="ch">'m'</span>));     <span class="cm">// 7</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(s.<span class="fn">lastIndexOf</span>(<span class="ch">'z'</span>));     <span class="cm">// -1</span></code></div>
+        <p class="method-tip">💡 Use case: find the extension of a filename → <ic>"report.pdf".lastIndexOf('.')</ic> → 6</p>
+      </div>
+    </div>
+
+    <!-- replace -->
+    <div class="method">
+      <div class="method-head">
+        <span class="method-sig">replace(char oldChar, char newChar)</span>
+        <span class="ret-badge">returns String</span>
+      </div>
+      <div class="method-body">
+        <p class="method-desc">Returns a <strong>new string</strong> with every occurrence of <ic>oldChar</ic> replaced by <ic>newChar</ic>. The original string is unchanged (strings are immutable in Java).</p>
+        <div class="cb"><code><span class="tp">String</span> s <span class="op">=</span> <span class="st">"hello world"</span>;
+
+<span class="tp">String</span> result <span class="op">=</span> s.<span class="fn">replace</span>(<span class="ch">'l'</span>, <span class="ch">'r'</span>);
+<span class="cls">System</span>.out.<span class="fn">println</span>(result);   <span class="cm">// "herro worrd"</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(s);        <span class="cm">// "hello world"  ← unchanged!</span>
+
+<span class="cm">// Also works with substrings</span>
+<span class="tp">String</span> r2 <span class="op">=</span> s.<span class="fn">replace</span>(<span class="st">"world"</span>, <span class="st">"Java"</span>);
+<span class="cls">System</span>.out.<span class="fn">println</span>(r2);       <span class="cm">// "hello Java"</span></code></div>
+      </div>
+    </div>
+
+    <!-- toCharArray -->
+    <div class="method">
+      <div class="method-head">
+        <span class="method-sig">toCharArray()</span>
+        <span class="ret-badge">returns char[]</span>
+      </div>
+      <div class="method-body">
+        <p class="method-desc">Converts the string into a <strong>character array</strong>. Each index of the array holds one character. Useful when you need to loop through each character individually.</p>
+        <div class="cb"><code><span class="tp">String</span> s <span class="op">=</span> <span class="st">"hello"</span>;
+<span class="kw">char</span>[] arr <span class="op">=</span> s.<span class="fn">toCharArray</span>();
+
+<span class="cm">// arr = ['h', 'e', 'l', 'l', 'o']</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(arr[<span class="nm">0</span>]);   <span class="cm">// h</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(arr[<span class="nm">4</span>]);   <span class="cm">// o</span>
+
+<span class="cm">// Loop through each character</span>
+<span class="kw">for</span> (<span class="kw">char</span> c : arr) {
+    <span class="cls">System</span>.out.<span class="fn">print</span>(c <span class="op">+</span> <span class="st">" "</span>);   <span class="cm">// h e l l o</span>
+}</code></div>
+        <p class="method-tip">💡 Common use: checking if a string is a palindrome by comparing arr[0] with arr[n-1], etc.</p>
+      </div>
+    </div>
+
+    <!-- split -->
+    <div class="method">
+      <div class="method-head">
+        <span class="method-sig">split(String regex)</span>
+        <span class="ret-badge">returns String[]</span>
+      </div>
+      <div class="method-body">
+        <p class="method-desc">Splits the string into an array of substrings using a <strong>delimiter</strong> (separator). The delimiter itself is not included in the results.</p>
+        <div class="cb"><code><span class="tp">String</span> csv <span class="op">=</span> <span class="st">"Alice,Bob,Charlie,Diana"</span>;
+<span class="tp">String</span>[] names <span class="op">=</span> csv.<span class="fn">split</span>(<span class="st">","</span>);
+
+<span class="cls">System</span>.out.<span class="fn">println</span>(names[<span class="nm">0</span>]);         <span class="cm">// Alice</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(names.<span class="nm">length</span>);      <span class="cm">// 4</span>
+
+<span class="cm">// Loop through all parts</span>
+<span class="kw">for</span> (<span class="tp">String</span> name : names) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(name);
+}
+<span class="cm">// Alice</span>
+<span class="cm">// Bob</span>
+<span class="cm">// Charlie</span>
+<span class="cm">// Diana</span>
+
+<span class="cm">// Split on space</span>
+<span class="tp">String</span>[] words <span class="op">=</span> <span class="st">"one two three"</span>.<span class="fn">split</span>(<span class="st">" "</span>);  <span class="cm">// ["one","two","three"]</span></code></div>
+        <p class="method-tip">💡 The argument is a <em>regex</em> (regular expression). For special characters like <ic>.</ic> or <ic>|</ic>, escape them: <ic>split("\\.")</ic></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB 2: TYPECASTING ════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-typecast">
+    <h2>Converting Between Types and Strings</h2>
+
+    <div class="note">
+      <strong>Why do we need this?</strong> In Java, a number like <ic>42</ic> (type <ic>int</ic>) and the text <ic>"42"</ic> (type <ic>String</ic>) are completely different. You often need to convert one to the other — for example, to combine a number into a sentence, or to do math on a number the user typed in.
+    </div>
+
+    <!-- Direction 1: Primitive → String -->
+    <div style="font-size:.8rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">
+      ① Primitive → String &nbsp;(number/char/boolean to text)
+    </div>
+
+    <!-- toString -->
+    <div class="method">
+      <div class="method-head">
+        <span class="method-sig">Integer.toString( int value )</span>
+        <span class="ret-badge">returns String</span>
+      </div>
+      <div class="method-body">
+        <p class="method-desc">Converts an <ic>int</ic> value into its text form. Think of it as a built-in utility function — you give it a number, you get back the same digits as a String.</p>
+        <div class="cb"><code><span class="tp">String</span> s1 <span class="op">=</span> <span class="cls">Integer</span>.<span class="fn">toString</span>(<span class="nm">42</span>);
+<span class="cls">System</span>.out.<span class="fn">println</span>(s1);           <span class="cm">// "42"</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(s1.length());   <span class="cm">// 2  ← it's a String now, so .length() works</span>
+
+<span class="tp">String</span> s2 <span class="op">=</span> <span class="cls">Double</span>.<span class="fn">toString</span>(<span class="nm">3.14</span>);
+<span class="cls">System</span>.out.<span class="fn">println</span>(s2);           <span class="cm">// "3.14"</span></code></div>
+        <p class="method-tip">💡 Similarly: <ic>Double.toString(d)</ic>, <ic>Character.toString(c)</ic>, <ic>Boolean.toString(b)</ic> — one for each type.</p>
+      </div>
+    </div>
+
+    <!-- valueOf -->
+    <div class="method">
+      <div class="method-head">
+        <span class="method-sig">String.valueOf( value )</span>
+        <span class="ret-badge">returns String</span>
+      </div>
+      <div class="method-body">
+        <p class="method-desc">The <strong>easiest all-in-one converter</strong> — works on <ic>int</ic>, <ic>double</ic>, <ic>char</ic>, and <ic>boolean</ic> all with the same call. No need to remember a separate method for each type.</p>
+        <div class="cb"><code><span class="tp">String</span> a <span class="op">=</span> <span class="cls">String</span>.<span class="fn">valueOf</span>(<span class="nm">42</span>);      <span class="cm">// "42"</span>
+<span class="tp">String</span> b <span class="op">=</span> <span class="cls">String</span>.<span class="fn">valueOf</span>(<span class="nm">3.14</span>);    <span class="cm">// "3.14"</span>
+<span class="tp">String</span> c <span class="op">=</span> <span class="cls">String</span>.<span class="fn">valueOf</span>(<span class="kw">true</span>);     <span class="cm">// "true"</span>
+<span class="tp">String</span> d <span class="op">=</span> <span class="cls">String</span>.<span class="fn">valueOf</span>(<span class="ch">'A'</span>);      <span class="cm">// "A"</span>
+
+<span class="cm">// Real use — building a message with a number inside</span>
+<span class="kw">int</span> score <span class="op">=</span> <span class="nm">87</span>;
+<span class="tp">String</span> msg <span class="op">=</span> <span class="st">"Your score is: "</span> <span class="op">+</span> <span class="cls">String</span>.<span class="fn">valueOf</span>(score);
+<span class="cls">System</span>.out.<span class="fn">println</span>(msg);            <span class="cm">// Your score is: 87</span></code></div>
+        <p class="method-tip">💡 Quick trick: <ic>"" + 42</ic> also gives <ic>"42"</ic> (Java auto-converts when you concatenate with a String). <ic>String.valueOf()</ic> is the cleaner, more explicit way.</p>
+      </div>
+    </div>
+
+    <!-- Direction 2: String → Primitive -->
+    <div style="font-size:.8rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin: 8px 0;">
+      ② String → Primitive &nbsp;(text to number — called Parsing)
+    </div>
+
+    <div class="method">
+      <div class="method-head">
+        <span class="method-sig">Integer.parseInt( String s ) &nbsp;/&nbsp; Double.parseDouble( String s )</span>
+        <span class="ret-badge">returns int / double</span>
+      </div>
+      <div class="method-body">
+        <p class="method-desc">Converts a String that looks like a number <strong>back into an actual number</strong> you can do arithmetic with. This is called <em>parsing</em>. You'll use this whenever you take input from a user (input is always a String).</p>
+        <div class="cb"><code><span class="tp">String</span> input <span class="op">=</span> <span class="st">"25"</span>;             <span class="cm">// comes from user input — it's text, not a number</span>
+<span class="kw">int</span> age <span class="op">=</span> <span class="cls">Integer</span>.<span class="fn">parseInt</span>(input);  <span class="cm">// now it's an int</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(age <span class="op">+</span> <span class="nm">5</span>);       <span class="cm">// 30  ← actual addition</span>
+
+<span class="tp">String</span> priceStr <span class="op">=</span> <span class="st">"99.99"</span>;
+<span class="kw">double</span> price <span class="op">=</span> <span class="cls">Double</span>.<span class="fn">parseDouble</span>(priceStr);
+<span class="cls">System</span>.out.<span class="fn">println</span>(price <span class="op">*</span> <span class="nm">2</span>);      <span class="cm">// 199.98</span>
+
+<span class="cm">// ⚠ The string must actually contain a valid number</span>
+<span class="cm">// Integer.parseInt("hello") → crashes at runtime!</span></code></div>
+        <p class="method-tip">💡 The string <ic>"25"</ic> and the integer <ic>25</ic> look the same to your eyes but Java sees them as different — one is text, one is a number. <ic>parseInt</ic> bridges that gap.</p>
+      </div>
+    </div>
+
+    <!-- Summary table -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+      <div style="padding:11px 16px;background:var(--surface-2);border-bottom:1px solid var(--border);font-weight:600;font-size:.88rem;">At a glance — which method to use</div>
+      <div style="overflow-x:auto;">
+        <table class="spec-table">
+          <tr><th>What you have</th><th>What you want</th><th>Use</th></tr>
+          <tr>
+            <td class="spec-desc"><ic>int</ic> / <ic>double</ic> / <ic>char</ic> / <ic>boolean</ic></td>
+            <td class="spec-desc"><ic>String</ic></td>
+            <td><span class="spec">String.valueOf(x)</span></td>
+          </tr>
+          <tr>
+            <td class="spec-desc"><ic>int</ic></td>
+            <td class="spec-desc"><ic>String</ic></td>
+            <td><span class="spec">Integer.toString(n)</span></td>
+          </tr>
+          <tr>
+            <td class="spec-desc"><ic>double</ic></td>
+            <td class="spec-desc"><ic>String</ic></td>
+            <td><span class="spec">Double.toString(d)</span></td>
+          </tr>
+          <tr>
+            <td class="spec-desc"><ic>String</ic> like <ic>"42"</ic></td>
+            <td class="spec-desc"><ic>int</ic></td>
+            <td><span class="spec">Integer.parseInt(s)</span></td>
+          </tr>
+          <tr>
+            <td class="spec-desc"><ic>String</ic> like <ic>"3.14"</ic></td>
+            <td class="spec-desc"><ic>double</ic></td>
+            <td><span class="spec">Double.parseDouble(s)</span></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB 3: FORMATTED STRINGS ══════════════════════════════════ -->
+  <div class="tab-panel" id="tab-formatted">
+    <h2>Formatted String Output in Java</h2>
+
+    <div class="note">
+      Formatted strings let you embed values into text with precise control over <strong>spacing, decimal places, and alignment</strong> — much cleaner than string concatenation.
+    </div>
+
+    <!-- Two methods -->
+    <div class="split">
+      <div class="split-col">
+        <div class="split-head">String.format()</div>
+        <div class="split-body">
+          <p style="font-size:.84rem;color:var(--fg-muted);margin:0 0 8px">Returns a <strong>new formatted String</strong> — store it in a variable or print it later.</p>
+          <div class="cb" style="margin:0"><code><span class="tp">String</span> msg <span class="op">=</span> <span class="cls">String</span>.<span class="fn">format</span>(
+    <span class="st">"Hello, %s! Score: %d"</span>,
+    <span class="st">"Alice"</span>, <span class="nm">95</span>
+);
+<span class="cls">System</span>.out.<span class="fn">println</span>(msg);
+<span class="cm">// Hello, Alice! Score: 95</span></code></div>
+        </div>
+      </div>
+      <div class="split-col">
+        <div class="split-head">System.out.printf()</div>
+        <div class="split-body">
+          <p style="font-size:.84rem;color:var(--fg-muted);margin:0 0 8px">Prints the formatted string <strong>directly</strong> — does not add a newline by default.</p>
+          <div class="cb" style="margin:0"><code><span class="cls">System</span>.out.<span class="fn">printf</span>(
+    <span class="st">"Hello, %s! Score: %d%n"</span>,
+    <span class="st">"Alice"</span>, <span class="nm">95</span>
+);
+<span class="cm">// Hello, Alice! Score: 95</span></code></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Format specifiers table -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+      <div style="padding:11px 16px;background:var(--surface-2);border-bottom:1px solid var(--border);font-weight:600;font-size:.88rem;">Format Specifiers — Quick Reference</div>
+      <div style="overflow-x:auto;">
+        <table class="spec-table">
+          <tr><th>Specifier</th><th>Type</th><th>Example</th><th>Output</th></tr>
+          <tr><td><span class="spec">%s</span></td><td class="spec-desc">String</td><td class="spec-ex">format("Hi %s", "Bob")</td><td class="spec-ex">Hi Bob</td></tr>
+          <tr><td><span class="spec">%d</span></td><td class="spec-desc">int / long</td><td class="spec-ex">format("Age: %d", 20)</td><td class="spec-ex">Age: 20</td></tr>
+          <tr><td><span class="spec">%f</span></td><td class="spec-desc">float / double</td><td class="spec-ex">format("%f", 3.14)</td><td class="spec-ex">3.140000</td></tr>
+          <tr><td><span class="spec">%.2f</span></td><td class="spec-desc">float, 2 decimal places</td><td class="spec-ex">format("%.2f", 3.14159)</td><td class="spec-ex">3.14</td></tr>
+          <tr><td><span class="spec">%c</span></td><td class="spec-desc">char</td><td class="spec-ex">format("%c", 'A')</td><td class="spec-ex">A</td></tr>
+          <tr><td><span class="spec">%b</span></td><td class="spec-desc">boolean</td><td class="spec-ex">format("%b", true)</td><td class="spec-ex">true</td></tr>
+          <tr><td><span class="spec">%5d</span></td><td class="spec-desc">int, padded to width 5</td><td class="spec-ex">format("%5d", 42)</td><td class="spec-ex">&nbsp;&nbsp;&nbsp;42</td></tr>
+          <tr><td><span class="spec">%-5d</span></td><td class="spec-desc">int, left-aligned, width 5</td><td class="spec-ex">format("%-5d|", 42)</td><td class="spec-ex">42&nbsp;&nbsp;&nbsp;|</td></tr>
+          <tr><td><span class="spec">%05d</span></td><td class="spec-desc">int, zero-padded</td><td class="spec-ex">format("%05d", 42)</td><td class="spec-ex">00042</td></tr>
+          <tr><td><span class="spec">%n</span></td><td class="spec-desc">newline (platform-safe)</td><td class="spec-ex">format("line1%nline2")</td><td class="spec-ex">line1 ↵ line2</td></tr>
+          <tr><td><span class="spec">%%</span></td><td class="spec-desc">literal % sign</td><td class="spec-ex">format("100%%")</td><td class="spec-ex">100%</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Practical examples -->
+    <div class="method">
+      <div class="method-head">
+        <span class="method-sig">Practical Examples</span>
+      </div>
+      <div class="method-body">
+        <div class="cb"><code><span class="tp">String</span> name   <span class="op">=</span> <span class="st">"Riya"</span>;
+<span class="kw">int</span>    marks  <span class="op">=</span> <span class="nm">87</span>;
+<span class="kw">double</span> pct    <span class="op">=</span> <span class="nm">87.333</span>;
+
+<span class="cm">// 1. Basic student result</span>
+<span class="cls">System</span>.out.<span class="fn">printf</span>(<span class="st">"%-10s scored %3d marks (%.1f%%)%n"</span>, name, marks, pct);
+<span class="cm">// Riya       scored  87 marks (87.3%)</span>
+
+<span class="cm">// 2. Invoice-style aligned table</span>
+<span class="cls">System</span>.out.<span class="fn">printf</span>(<span class="st">"%-15s %5s %8s%n"</span>, <span class="st">"Item"</span>, <span class="st">"Qty"</span>, <span class="st">"Price"</span>);
+<span class="cls">System</span>.out.<span class="fn">printf</span>(<span class="st">"%-15s %5d %8.2f%n"</span>, <span class="st">"Notebook"</span>, <span class="nm">3</span>, <span class="nm">45.50</span>);
+<span class="cls">System</span>.out.<span class="fn">printf</span>(<span class="st">"%-15s %5d %8.2f%n"</span>, <span class="st">"Pen"</span>, <span class="nm">12</span>, <span class="nm">8.00</span>);
+<span class="cm">// Item               Qty    Price</span>
+<span class="cm">// Notebook             3    45.50</span>
+<span class="cm">// Pen                 12     8.00</span>
+
+<span class="cm">// 3. Store formatted string for later use</span>
+<span class="tp">String</span> label <span class="op">=</span> <span class="cls">String</span>.<span class="fn">format</span>(<span class="st">"Roll No: %04d | %s"</span>, <span class="nm">7</span>, name);
+<span class="cls">System</span>.out.<span class="fn">println</span>(label);
+<span class="cm">// Roll No: 0007 | Riya</span></code></div>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>Tip:</strong> Use <ic>%n</ic> instead of <ic>\n</ic> inside <ic>printf</ic> and <ic>format</ic> — it picks the correct newline character for the operating system automatically.
+    </div>
+  </div>
+
+</div>
+
+<script>
+const tabs    = document.querySelectorAll('.tab-btn');
+const panels  = document.querySelectorAll('.tab-panel');
+
+tabs.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    panels.forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+
+</body></html>
